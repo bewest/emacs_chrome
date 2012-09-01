@@ -25,7 +25,7 @@ var settings = new Store("settings", {
 var orig_console_log = console.log;
 console.log = function() {
     if (settings.get("enable_debug")) {
-        orig_console_log.apply(console, Array.prototype.slice.call(arguments));
+        orig_console_log.apply(console, ['emacs_chrome:'].concat(Array.prototype.slice.call(arguments)));
     }
 };
 
