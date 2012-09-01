@@ -45,6 +45,13 @@ this.manifest = {
 	    "type": "checkbox",
 	    "label": "Enable Alt-Enter Keyboard shortcut to invoke editor"
 	},
+	{
+            "tab": "Configuration",
+            "group": "Interface",
+	    "name": "verbose",
+	    "type": "checkbox",
+	    "label": "Enable chatty logging of plugin behavior."
+	},
         {
             "tab": "Test",
             "group": "Test",

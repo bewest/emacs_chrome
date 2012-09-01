@@ -16,9 +16,9 @@ var settings = new Store("settings", {
     "edit_server_port": 9292,
     "enable_button": true,
     "enable_dblclick": false,
-    "enable_keys": false
+    "enable_keys": false,
+    "verbose": false
 });
-
 
 // Get the base URL from which we make all requests to the server..
 function getEditUrl()
@@ -157,7 +157,8 @@ function handleConfigMessages(msg, tab_port)
 	    msg: "config",
 	    enable_button: settings.get("enable_button"),
 	    enable_dblclick: settings.get("enable_dblclick"),
-	    enable_keys: settings.get("enable_keys")
+	    enable_keys: settings.get("enable_keys"),
+	    verbose: settings.get("verbose")
 	};
 	tab_port.postMessage(config_msg);
 }

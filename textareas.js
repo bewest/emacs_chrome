@@ -25,6 +25,23 @@ var findTextAreasDefferedElements = [];
 var enable_button = true;
 var enable_dblclick = false;
 var enable_keys = false;
+var verbose = false;
+
+/*
+  do_log
+
+  Log behavior of our plugin.  Set verbose to true.  content scripts
+  log into the browser window, along with content from the web.  This
+  allows plugin users to control whether or not their browser's
+  console gets notificaitons of our behavior on every page.
+  People who work on websites will likely want this off, since it
+  obscures errors caused by them.
+*/
+function do_log( ) {
+  var msg = ['emacs_chrome:'].concat(Array.prototype.slice.call(arguments));
+  if (verbose)
+    console.log.apply(console, msg);
+}
 
 /*
   getTitle
@@ -39,7 +56,7 @@ function getTitle()
 		try {
 			title = document.getElementsByTagName('title').item().innerText;
 		} catch (err) {
-			console.log ("failed to extract title from HTML ("+err+")");
+			console.log ('emacs_chrome:', 'failed to extract title from HTML', err);
 			title = document.documentURI;
 		}
 	}
@@ -163,7 +180,7 @@ function tagTextArea(text)
 		if ( existing_area &&
 			 (existing_area.text != text ) )
 		{
-			console.log("tagTextArea: Working around a duplicate id!");
+			do_log("tagTextArea: Working around a duplicate id!");
 			// OK, first things first, find any images that think
 			// they are associated with a text area and remove them
 			siblings = text.parentElement.childNodes;
@@ -249,8 +266,8 @@ function sendTextArea(text_tracker) {
 				this.removeEventListener('blur',arguments.callee,false);
 			});
 		} else {
-			console.log ("setFocused: failed to find a tracker for "+id);
-        }
+			do_log ("setFocused: failed to find a tracker for "+id);
+	  }
 	};
 })();
 
@@ -279,7 +296,7 @@ function editTextArea(event) {
 */
 
 function findTextAreas(elements) {
-	console.log("findTextAreas: running over "+elements.length);
+	do_log("findTextAreas: running over "+elements.length);
 
     for (var i=0; i<elements.length; i++) {
         var x = $(elements[i]);
@@ -318,9 +335,9 @@ function handleInsertedElements(ev) {
 	if (!findTextAreasTimeout) {
         var elements = findTextAreasDefferedElements;
         elements.push(ev.target);
-        console.log("will scan text area in "+findTextAreasTime);
+        do_log("will scan text area in "+findTextAreasTime);
 		findTextAreasTimeout = setTimeout((function() {
-            console.log("findTextAreas timeout fired");
+            do_log("findTextAreas timeout fired");
 			findTextAreas(elements);
 			findTextAreasTimeout = undefined;
             findTextAreasTime = 0;
@@ -331,7 +348,7 @@ function handleInsertedElements(ev) {
         findTextAreasTime += 500;
         findTextAreasTime = Math.min(findTextAreasTime, 2000);
         findTextAreasDefferedElements.push(ev.target);
-        console.log("defered "+findTextAreasDefferedElements.length+" updates, next fire in "+findTextAreasTime);
+        do_log("defered "+findTextAreasDefferedElements.length+" updates, next fire in "+findTextAreasTime);
     }
 }
 
@@ -340,10 +357,11 @@ function localMessageHandler(msg, port) {
 	// What was the bidding?
 	var cmd = msg.msg;
 	if (cmd == "config") {
-		console.log("config response: "+msg);
+		do_log("config response: ", msg);
 		enable_button = msg.enable_button;
 		enable_dblclick = msg.enable_dblclick;
 		enable_keys = msg.enable_keys;
+		verbose = msg.verbose;
 		findTextAreas([$('*')]);
 		document.addEventListener("DOMNodeInserted", (function (ev) {
 			handleInsertedElements(ev);
